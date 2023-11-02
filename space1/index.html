@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Space Invaders</title>
+</head>
+
+<body>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+  <script src="script.js"></script>
+  <!-- <script>
+    // Get the canvas element and its 2d drawing context
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Define the enemy spaceship properties
+    const enemyWidth = 50;
+    const enemyHeight = 40; // Reduced height by half
+    const enemyX = (canvas.width - enemyWidth) / 2;
+    const enemyY = 30; // Adjusted vertical position
+
+    // Function to draw the enemy spaceship
+    function drawEnemy() {
+      // Create a radial gradient for the body of the spaceship
+      const gradient = ctx.createRadialGradient(enemyX + enemyWidth / 2, enemyY, 10, enemyX + enemyWidth / 2, enemyY, enemyWidth);
+      gradient.addColorStop(0, "darkred");
+      gradient.addColorStop(1, "red");
+
+      // Draw the rectangular body
+      ctx.beginPath();
+      ctx.moveTo(enemyX, enemyY);
+      ctx.lineTo(enemyX + enemyWidth, enemyY);
+      ctx.lineTo(enemyX + enemyWidth, enemyY + enemyHeight);
+      ctx.lineTo(enemyX, enemyY + enemyHeight);
+      ctx.lineTo(enemyX, enemyY);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      ctx.closePath();
+
+      // Draw the dome-shaped head with gradient fill
+      ctx.beginPath();
+      ctx.moveTo(enemyX + enemyWidth / 2, enemyY);
+      ctx.arc(enemyX + enemyWidth / 2, enemyY, enemyWidth / 2, Math.PI, 0);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      ctx.closePath();
+
+      // Eyes (centered vertically)
+      const eyeY = enemyY + 10;
+      ctx.beginPath();
+      ctx.arc(enemyX + 20, eyeY, 5, 0, Math.PI * 2);
+      ctx.arc(enemyX + 30, eyeY, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "black"; // Color of the eyes
+      ctx.fill();
+      ctx.closePath();
+
+      // Skinny arms (centered vertically)
+      const armY = enemyY + 20;
+      ctx.beginPath();
+      ctx.moveTo(enemyX - 5, armY);
+      ctx.lineTo(enemyX - 15, armY + 20);
+      ctx.moveTo(enemyX + enemyWidth + 5, armY);
+      ctx.lineTo(enemyX + enemyWidth + 15, armY + 20);
+      ctx.strokeStyle = "red"; // Color of the arms
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.closePath();
+    }
+
+    // Call the drawEnemy function to draw the modified enemy spaceship
+    drawEnemy();
+  </script> -->
+</body>
+
+</html>

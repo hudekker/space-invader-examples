@@ -1,0 +1,13 @@
+body {
+  background-image: url("IMG_7258.PNG");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+#canvas-container {
+  display: flex;
+  justify-content: center; /* Horizontally center the content */
+  align-items: center; /* Vertically center the content */
+  height: 100vh; /* Make the container full viewport height */
+}
