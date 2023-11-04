@@ -1,166 +1,136 @@
-const canvas = document.getElementById("gameCanvas");
-const context = canvas.getContext("2d");
-
-// Set the canvas dimensions dynamically
-canvas.width = window.innerWidth - 100; // Set canvas width to the width of the window
-canvas.height = window.innerHeight - 100; // Set canvas height to the height of the window
-
-window.addEventListener("resize", () => {
-  // Update canvas dimensions on window resize
-  canvas.width = window.innerWidth - 50;
-  canvas.height = window.innerHeight - 50;
+// Event listener for keydown
+document.addEventListener("keydown", function (event) {
+  switch (event.key) {
+    case "ArrowLeft":
+      leftArrowPressed = true;
+      break;
+    case "ArrowRight":
+      rightArrowPressed = true;
+      break;
+    case "a":
+    case "A":
+      aKeyPressed = true;
+      fireBullet();
+      // Fire a bullet here
+      break;
+    // Add cases for other keys as needed
+  }
 });
 
-// const numCols = 5; // Number of columns (aliens per row)
-let initRows = 3;
-let numRows = initRows; // Number of rows initially
-const maxRows = 5; // Maximum number of rows
-const rowSpacing = 80; // Increased vertical spacing between rows
-const colSpacing = 60; // Horizontal spacing between aliens
-const alienWidth = 60; // Width of each alien
-const alienHeight = 50; // Height of each alien
-let alienSpeed = 2; // Speed of alien movement (change to let)
-let flagEase = false;
-let boolArmDown = true;
-const availableWidth = canvas.width / 2;
-const numCols = Math.floor(availableWidth / (alienWidth + colSpacing));
-
-// Function to toggle the boolean value
-const toggleArms = () => {
-  boolArmDown = !boolArmDown; // Toggle between true and false
-};
-
-// Set an interval to call the toggleBoolean function every 0.5 seconds (500 milliseconds)
-const interval = setInterval(toggleArms, 500);
-
-// Define the color constants
-// const colors = [GREEN_DARK, PURPLE_DARK, BLUE_DARK, RED_DARK, ORANGE_DARK];
-const colorPairs = [
-  { bright: GREEN_BRIGHT, dark: GREEN_DARK },
-  { bright: PURPLE_BRIGHT, dark: PURPLE_DARK },
-  { bright: ORANGE_BRIGHT, dark: ORANGE_DARK },
-  { bright: BLUE_BRIGHT, dark: BLUE_DARK },
-  { bright: RED_BRIGHT, dark: RED_DARK },
-];
-
-// Initialize the aliens with their positions
-const aliens = [];
-
-// Initialize the first row
-const initialXPositions = Array.from({ length: numCols }, (_, col) => col * (alienWidth + colSpacing));
-
-// Function to shuffle an array randomly
-const shuffleArray = (array) => {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
+// Event listener for keyup
+document.addEventListener("keyup", function (event) {
+  switch (event.key) {
+    case "ArrowLeft":
+      leftArrowPressed = false;
+      break;
+    case "ArrowRight":
+      rightArrowPressed = false;
+      break;
+    case "a":
+    case "A":
+      aKeyPressed = false;
+      break;
+    // Add cases for other keys as needed
   }
-};
+});
 
-// Helper function to initialize aliens for a row
-const initializeAliensForRow = (y, xPositions, rowNum) => {
-  shuffleArray(colorPairs);
+const checkCollisions = () => {
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    for (let j = aliens.length - 1; j >= 0; j--) {
+      const bullet = bullets[i];
+      const alien = aliens[j];
 
-  for (let col = 0; col < numCols; col++) {
-    const colorPair = colorPairs[col % 5];
-    aliens.push({ x: xPositions[col], y, darkColor: colorPair.dark, brightColor: colorPair.bright, row: rowNum, armY: 1 });
-  }
-};
+      // Check if the bullet is within the alien's boundaries
+      if (
+        bullet.x > alien.x &&
+        bullet.x < alien.x + alienWidth &&
+        bullet.y > alien.y &&
+        bullet.y < alien.y + alienHeight
+      ) {
+        // Collision detected, remove the bullet
+        bullets.splice(i, 1);
 
-// Function to add a new row at the top
-const addNewRow = () => {
-  const xPositions = Array.from(aliens.slice(-numCols), (alien) => alien.x);
-  numRows++;
-  initializeAliensForRow(50 - rowSpacing, xPositions, numRows);
-};
+        // Destroy the alien with an explosion effect
+        explosions.push({ x: alien.x, y: alien.y, frames: explosionFrames })
 
-// Function to move all rows down one level
-const moveAllRowsDown = () => {
-  for (const alien of aliens) {
-    alien.y += rowSpacing;
-  }
-};
+        // Remove the alien from the aliens array
+        aliens.splice(j, 1);
 
-// Function to move all rows down one level with easing
-const moveAllRowsDownWithEasing = () => {
-  const frames = 20; // Number of frames for the easing effect
-  const distanceToMove = rowSpacing / frames;
-
-  // Keep track of the number of frames
-  let frameCount = 0;
-
-  const easingVerticalMove = () => {
-    // Move each alien's y position
-    for (const alien of aliens) {
-      alien.y += distanceToMove;
+        // Break out of the inner loop
+        break;
+      }
     }
-
-    frameCount++;
-
-    // If not reached the desired frames, request another frame for the vertical easing effect
-    if (frameCount < frames) {
-      flagEase = true;
-      requestAnimationFrame(easingVerticalMove);
-    } else {
-      flagEase = false;
-      frameCount = 0;
-    }
-  };
-
-  // Start the vertical easing effect
-  easingVerticalMove();
+  }
 };
 
-for (let i = 0; i < initRows; i++) {
-  initializeAliensForRow(rowSpacing * (i + 1) - 30, initialXPositions, i);
+const drawExplosions = () => {
+  for (let i = explosions.length - 1; i >= 0; i--) {
+    let explosion = explosions[i];
+    drawExplosion(explosion.x, explosion.y);
+    explosion.frames--;
+
+    if (explosion.frames < 0) {
+      explosions.splice(i, 1)
+    }
+  }
+};
+
+// const drawExplosion = (x, y) => {
+//   // Example of drawing a simple explosion effect (modify as needed):
+//   ctx.fillStyle = "red";
+//   ctx.beginPath();
+//   ctx.arc(x + alienWidth / 2, y + alienHeight / 2, 20, 0, Math.PI * 2);
+//   ctx.fill();
+// };
+
+// Draw the explosion-like shape when an alien is destroyed
+function drawExplosion(x, y) {
+  // Create a random pattern of jagged lines
+  const numLines = 20;
+  const lineWidth = 6;
+
+  ctx.strokeStyle = "red"; // Color of the explosion lines
+  ctx.lineWidth = lineWidth;
+
+  for (let i = 0; i < numLines; i++) {
+    const angle = (i / numLines) * Math.PI * 2;
+    const length = Math.random() * 20 + 10; // Vary the length of lines
+    const x1 = x + Math.cos(angle) * length;
+    const y1 = y + Math.sin(angle) * length;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+  }
 }
+
 
 // Game loop
 const gameLoop = () => {
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Check for collisions
-  let collisionDetected = false;
+  // move the aliens
+  moveAliens();
 
-  for (const alien of aliens) {
-    // Draw the alien at its current position
-    // Move aliens
-    createAlien(context, alien.x, alien.y, alien.darkColor, alien.brightColor, WHITE, boolArmDown, alienSpeed);
+  // Move player
+  movePlayer();
 
-    // Update the position of the alien to move to the right
-    if (!flagEase) {
-      alien.x += alienSpeed;
-    }
+  // Check for collisions between bullets and aliens
+  checkCollisions();
 
-    // Check if the alien has reached the right edge of the screen
-    if (alien.x + alienWidth > canvas.width) {
-      // Reverse direction, set the collision flag, and add a new row at the top
-      alien.x = canvas.width - alienWidth;
-      alienSpeed = -alienSpeed;
-      collisionDetected = true;
-    }
-
-    // Check if the alien has reached the left edge of the screen
-    if (alien.x < 0) {
-      // Reverse direction, set the collision flag, and add a new row at the top
-      alien.x = 0;
-      alienSpeed = -alienSpeed;
-      collisionDetected = true;
-    }
-  }
-
-  // If a collision is detected, move all rows down
-  if (collisionDetected) {
-    collisionDetected = false;
-    if (numRows < maxRows) {
-      addNewRow();
-    }
-
-    moveAllRowsDownWithEasing();
-  }
+  // Draw explosions
+  drawExplosions();
 
   requestAnimationFrame(gameLoop);
 };
 
-// Start the game loop
+// Initialize first rows of aliens
+for (let i = 0; i < initRows; i++) {
+  initializeAliensForRow(rowSpacing * (i + 1) - 30, initialXPositions, i);
+}
+
+// Run the game loop
 gameLoop();
+
+
+
