@@ -115,6 +115,7 @@ const initializeAliensForRow = (y, xPositions, rowNum) => {
 // Function to add a new row at the top
 const addNewRow = () => {
   const xPositions = Array.from(aliens.slice(-numCols), (alien) => alien.x);
+  debugger;
   numRows++;
   initializeAliensForRow(50 - rowSpacing, xPositions, numRows);
 };
